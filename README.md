@@ -76,8 +76,8 @@ Below diagram illustrates the relationship between the components:
 
 ## Try it out!
 
-___NOTE__: you will most likely need to rebuild `ws`. just run `npm install ws`
-in the project root, it's the only dependency.
+__NOTE__: you will most likely need to rebuild `ws`. just run `npm install`in
+the project root, it's the only dependency.
 
 This prototype also provides an example. Run `node main.js` in the root of the
 project to start it. It will start proxy, server and open one browser. After
