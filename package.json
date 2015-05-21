@@ -1,0 +1,8 @@
+{
+    "name": "ws-rpc",
+    "private": true,
+    "dependendcies": {
+        "ws": "0.7.2",
+        "open": "0.0.5"
+    }
+}
