@@ -6,7 +6,7 @@
         "devel": true,
         "nomen": true,
         "maxerr": 50,
-        "es5": true,
+        "es5": true
     },
     "defaultExtension": "js",
     "language": {
