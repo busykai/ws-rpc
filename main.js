@@ -3,7 +3,8 @@
     "use strict";
     var proxy = require("./proxy/proxy"),
         server = require("./server/server"),
-        cprocess = require('child_process');
+        cprocess = require('child_process'),
+        open = require("open");
 
     var port = -1;
 
@@ -13,7 +14,7 @@
             port = proxy.getPort();
             console.log("Started server on " + port);
             if (port > 0) {
-                cprocess.exec("open http://localhost:8080/client/index.html?" + port);
+                open("http://localhost:8080/client/index.html?" + port);
             } else {
                 console.log("Proxy does not return port: " + port);
             }
