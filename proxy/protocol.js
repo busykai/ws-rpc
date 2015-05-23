@@ -21,7 +21,10 @@
         return result;
     }
     
-    function ProtocolError() {
+    function ProtocolError(msg) {
+        if (msg) {
+            this.message = msg;
+        }
     }
     
     ProtocolError.prototype = Object.create(Error.prototype);
@@ -43,7 +46,7 @@
             response;
         
         if (ids.length > 1) {
-            throw new ProtocolError();
+            throw new ProtocolError("More than 2 clients connecting to the same channel");
         }
 
         if (ids.length === 1) {
@@ -83,7 +86,7 @@
             callee = payload.them;
         
         if (!this.peers[caller] || !this.peers[callee]) {
-            throw new ProtocolError();
+            throw new ProtocolError("No caller or callee: " + JSON.stringify(payload));
         }
         _sockets[payload.them].send(_serialize(payload));
         
@@ -97,7 +100,7 @@
             response;
         
         if (!tunnelID) {
-            throw new ProtocolError();
+            throw new ProtocolError("No tunnelID specified");
         }
         
         if (!tunnel) {
@@ -120,7 +123,7 @@
             try {
                 payload = JSON.parse(msg);
             } catch (e) {
-                throw new ProtocolError(e);
+                throw new ProtocolError("Payload is not a valid JSON: " + e);
             }
             
             tunnelID = payload.id;
@@ -131,7 +134,7 @@
             } else {
                 tunnel = _tunnels[tunnelID];
                 if (!tunnel) {
-                    throw new ProtocolError();
+                    throw new ProtocolError("Tunnel " + tunnelID + " is not found");
                 }
                 switch (payload.type) {
                 case "publish":
@@ -142,7 +145,7 @@
                 case "event":
                     break;
                 default:
-                    throw new ProtocolError();
+                    throw new ProtocolError("Message type " + payload.type + " is not understood");
                 }
             }
         });
