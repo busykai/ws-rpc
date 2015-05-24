@@ -31,12 +31,11 @@
     }
 
     window.addEventListener("load", function () {
-        // initialize WS-RPC with the published interface
-        wsrpc.init(getPeerInterface());
 
         var uaButton = document.getElementById("call"),
             input = document.getElementById("input"),
-            getContentButton = document.getElementById("getcontent");
+            getContentButton = document.getElementById("getcontent"),
+            status = document.getElementById("status");
         
         uaButton.addEventListener("click", function () {
             if (peer.ready) {
@@ -53,5 +52,23 @@
             }
         });
         
+        wsrpc.on("open", function () {
+            status.innerHTML += "Connected to the proxy!\n";
+        });
+        wsrpc.on("peer", function (id) {
+            status.innerHTML += "Peer connected (id " + id + ").\n";
+        });
+        wsrpc.on("close", function (id) {
+            status.style.backgroundColor = "#c95656";
+            status.innerHTML += "Connection to the proxy was closed.";
+        });
+        wsrpc.on("error", function (id) {
+            status.innerHTML += "Error occured.\n";
+            status.style.backgroundColor = "#c95656";
+        });
+        
+        // initialize WS-RPC with the published interface
+        wsrpc.init(getPeerInterface());
+
     });
 }());

@@ -3,7 +3,8 @@
     "use strict";
 
     window.peer = {};
-    
+    var _wsrpc = {};
+        
     var _LETTERS_AND_NUMBERS = "abcdefghijklmnopqrstuvwxyz0123456789";
 
     function _getRandomID() {
@@ -15,12 +16,61 @@
         return result;
     }
     
+    /** EVENTS **/
+    
+    var _E_OPEN     = "open",
+        _E_CLOSE    = "close",
+        _E_ERROR    = "error",
+        _E_PEER     = "peer";
+    
+    var _events = {
+    };
+    
+    function checkValidEvent(event) {
+        switch (event) {
+        case _E_CLOSE:
+        case _E_ERROR:
+        case _E_OPEN:
+        case _E_PEER:
+            return true;
+        default:
+            return false;
+        }
+    }
+    
+    _wsrpc.on = function (event, callback) {
+        if (!checkValidEvent(event)) {
+            return;
+        }
+        if (!_events[event]) {
+            _events[event] = [callback];
+        } else {
+            _events[event].push(callback);
+        }
+    };
+    
+    function _dispatch(event, data) {
+        if (!checkValidEvent(event)) {
+            return;
+        }
+        var handlers = _events[event],
+            i;
+        
+        if (!handlers) {
+            return;
+        }
+        
+        for (i = 0; i < handlers.length; i++) {
+            handlers[i].apply(_wsrpc, data);
+        }
+    }
+
+    /* AUX FUNCTIONS */
     function _emptyHanlder() {
         return;
     }
     
-    var _wsrpc = {},
-        _calls = {};
+    var _calls = {};
 
     _wsrpc.init = function (def) {
         var port,
@@ -32,7 +82,8 @@
         _if.handlers = {};
         for (i = 0; i < def.api.length; i++) {
             if (!def.api[i].handler) {
-                throw new Error("No handler specified: " + JSON.stringify(def.api[i]));
+                _dispatch(_E_ERROR, ["No handler specified: " + JSON.stringify(def.api[i])]);
+                return;
             }
             _if.handlers[def.api[i].function] = def.api[i].handler;
             delete _if.api[i].handler;
@@ -72,7 +123,6 @@
                     }
                     if ((handleReturn && arguments.length !== api.arguments.length + 1) ||
                             (!handleReturn && arguments.length !== api.arguments.length)) {
-                        console.error("Wrong number of arguments!");
                         return;
                     }
                     call = {
@@ -116,6 +166,7 @@
         }
         
         ws.onopen = function () {
+            _dispatch(_E_OPEN, []);
             var payload = {
                 type: "handshake",
                 id: _if.connection.id
@@ -142,11 +193,11 @@
             case "handshake":
                 _if.connection.us = payload.us;
                 _if.connection.them = payload.them;
+                _dispatch(_E_PEER, [_if.connection.them]);
                 publishAPI();
                 break;
             case "publish":
                 handlePublish(payload);
-                console.log(payload);
                 break;
             case "call":
                 handleCall(payload);
@@ -159,8 +210,16 @@
                 return;
             }
         };
+        
+        ws.onerror = function (e) {
+            _dispatch(_E_ERROR, ["WS error " + e]);
+        };
+        
+        ws.onclose = function (e) {
+            _dispatch(_E_CLOSE, []);
+        };
     };
-
+    
     window.wsrpc = _wsrpc;
 
 }());
