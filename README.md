@@ -43,36 +43,36 @@ The prototype consists of three components:
 Below diagram illustrates the relationship between the components:
 
 ```
-  +-------------------+                           +-------------------+                                                                                                                                                                           
-  |                   |    Virtual call-level     |                   |                                                                                                                                                       
-  |      Browser      |       P2P connection      |      Browser      |                                                                                                                                                       
-  |                   |                           |                   |                                                                                                                                                       
-  |    sample/        | ~~  ~~  ~~  ~~  ~~  ~~  ~~|    sample/        |                                                                                                                                                       
-  | client/index.html |                           | client/index.html |                                                                                                                                                       
-  |                   |                           |                   |                                                                                                                                                       
-  |                   |                           |                   |                                                                                                                                                       
-  +-------------------+                           +-------------------+                                                                                                                                                                           
-        |        \                                     /      |                                                                                                                                         
-        |         \                                   /       |                                                                                                                                         
-        |         WS conn                        WS conn      |                                                                                                                          
-        |           \                               /         |                                                                                                                                         
+  +-------------------+                           +-------------------+
+  |                   |    Virtual call-level     |                   |
+  |      Browser      |       P2P connection      |      Browser      |
+  |                   |                           |                   |
+  |    sample/        | ~~  ~~  ~~  ~~  ~~  ~~  ~~|    sample/        |
+  | client/index.html |                           | client/index.html |
+  |                   |                           |                   |
+  |                   |                           |                   |
+  +-------------------+                           +-------------------+
+        |        \                                     /      |
+        |         \                                   /       |
+        |         WS conn                        WS conn      |
+        |           \                               /         |
    +----------------------------------------------------------------+
-   |    |             \   +-------------------+   /           |     |                                                                                                                                                         
-   |    |              \  |                   |  /            |     |                                                                                                                                                         
-   |    |               \ |      Proxy        | /             |     |                                                                                                                                                         
-   |  HTTP               \|                   |/             HTTP   |                                                                                                                                                         
-   |    |                 |   proxy/proxy.js  |               |     |                                                                                                                                                         
-   |    |                 |                   |               |     |                                                                                                                                                         
-   |    |                 +-------------------+               |     |                                                                                                                                                         
-   |    |                                                     |     |                                                                                                                                   
-   |    |  +-------------------+                              |     |                                                                                                                                                         
-   |    |  |                   |                              |     |                                                                                                                                                         
-   |    ---|      Server       |-------------------------------     |                                                                                                                                                                                        
-   |       |                   |                                    |                                                                                                                                                         
-   |       |      sample/      |                                    |                                                                                                                                                         
-   |       |  server/server.js |                                    |                                                                                                                                                         
-   |       |                   |         Node.js instance           | 
-   |       +-------------------+                                    | 
+   |    |             \   +-------------------+   /           |     |
+   |    |              \  |                   |  /            |     |
+   |    |               \ |      Proxy        | /             |     |
+   |  HTTP               \|                   |/             HTTP   |
+   |    |                 |   proxy/proxy.js  |               |     |
+   |    |                 |                   |               |     |
+   |    |                 +-------------------+               |     |
+   |    |                                                     |     |
+   |    |  +-------------------+                              |     |
+   |    |  |                   |                              |     |
+   |    ---|      Server       |-------------------------------     |
+   |       |                   |                                    |
+   |       |      sample/      |                                    |
+   |       |  server/server.js |                                    |
+   |       |                   |         Node.js instance           |
+   |       +-------------------+                                    |
    +----------------------------------------------------------------+
 
 ```
