@@ -12,8 +12,8 @@ container and the other one containing the emulator "controls".
 
 ## State of the project
 
-So far about 6 hours has been invested into this and the code lacks modularity,
-error handling, tests and many other things, but it serves its purpose.
+This is work in progres. Please use [issue tracker](https://github.com/busykai/ws-rpc/issues)
+to report any problems.
 
 ## Implementation details
 
@@ -25,18 +25,19 @@ The prototype consists of three components:
    by its ID.  Currently the tunnel ID is hard-coded in `client/main.js`, but
    instead it should be injected by the Server.
 
-2. The Client (`client/index.html`): the client establishes connection to the
+2. The Client (`sample/client/index.html`): the client establishes connection to the
    Proxy and publishes its API. It then is capable of responding to calls to
    the API coming from the other client. It is also capable of calling the API
    of its peer via `peer` global object. The API is exposed as functions, the
    result of the call is returned via callback which should be supplied as the
    last argument.
 
-1. The Server (`server/server.js`): currently it simply serves the client
-   pages, but ideally it should also be used to instrument the pages with the
-   information which is needed to establish the WS connections (i.e. port
-   number) and other info, such as channel id. In this prototype the WS server
-   port is passed query sting to the page (see `main.js` in the root).
+3. The Server: conceptually, it is the entity responsible for letting the
+   clients know how to connect to the proxy.
+
+   In this repository (`sample/server/server.js`), the server is not used as
+   broker. Instead, it simply serves the client pages. The WS server port is
+   passed query sting to the page (see `sample/sample.js` in the root).
 
 
 Below diagram illustrates the relationship between the components:
@@ -45,7 +46,8 @@ Below diagram illustrates the relationship between the components:
   +-------------------+                           +-------------------+                                                                                                                                                                           
   |                   |    Virtual call-level     |                   |                                                                                                                                                       
   |      Browser      |       P2P connection      |      Browser      |                                                                                                                                                       
-  |                   | ~~  ~~  ~~  ~~  ~~  ~~  ~~|                   |                                                                                                                                                       
+  |                   |                           |                   |                                                                                                                                                       
+  |    sample/        | ~~  ~~  ~~  ~~  ~~  ~~  ~~|    sample/        |                                                                                                                                                       
   | client/index.html |                           | client/index.html |                                                                                                                                                       
   |                   |                           |                   |                                                                                                                                                       
   |                   |                           |                   |                                                                                                                                                       
@@ -67,6 +69,7 @@ Below diagram illustrates the relationship between the components:
    |    |  |                   |                              |     |                                                                                                                                                         
    |    ---|      Server       |-------------------------------     |                                                                                                                                                                                        
    |       |                   |                                    |                                                                                                                                                         
+   |       |      sample/      |                                    |                                                                                                                                                         
    |       |  server/server.js |                                    |                                                                                                                                                         
    |       |                   |         Node.js instance           | 
    |       +-------------------+                                    | 
@@ -76,16 +79,16 @@ Below diagram illustrates the relationship between the components:
 
 ## Try it out!
 
-__NOTE__: just run `npm install`in the project root.
+__NOTE__: run `npm install` in the project root to install the dependencies.
 
-This prototype also provides an example. Run `node main.js` in the root of the
-project to start it. It will start proxy, server and open one browser. After
-your default browser has opened, copy the URL, open another browser
-(preferrably a different one) and paste the URL. After you hit Go or Enter,
-your browsers are connected.
+This prototype also provides an example. Run `node sample.js` in the `sample`
+directory of the project to start it. It will start the WS proxy, the HTTP
+server and open first client (your default browser). After the browser has
+opened, copy the URL, open another browser (preferrably a different one) and
+paste the URL. Once the second browser loads the page, your client are
+connected.
 
-Now you can press "Peer User Agent" button and the User-Agent string of the
-other browser will appear.
+Follow the on-screen instructions to try out different scenarios.
 
 In this examples both browsers are running the same page and publish the same
 API, but it could well be different. Each browser will have a `window.peer`
@@ -111,5 +114,3 @@ window.peer.userAgent(function (userAgent) {
 }
 ```
 
-Obviously, the prototype lacks many features, error handling, some stuff is
-hard-coded, but it's called a prototype for a reason.

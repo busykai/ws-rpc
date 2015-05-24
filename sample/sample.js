@@ -1,7 +1,7 @@
 /*global require: false, console: false */
 (function () {
     "use strict";
-    var proxy = require("./proxy/proxy"),
+    var proxy = require("../proxy/proxy"),
         server = require("./server/server"),
         cprocess = require('child_process'),
         open = require("open");
@@ -9,7 +9,7 @@
     var port = -1;
 
     console.log("Staring proxy.");
-    proxy.start().then(function () {
+    proxy.start(function () {
         server.start().then(function () {
             port = proxy.getPort();
             console.log("Started server on " + port);

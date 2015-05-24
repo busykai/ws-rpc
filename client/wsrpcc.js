@@ -15,45 +15,40 @@
         return result;
     }
     
-    function userAgent() {
-        return navigator.userAgent;
-    }
-    
-    var _calls = {};
+    var _wsrpc = {},
+        _calls = {};
 
-    window.addEventListener("load", function () {
-        console.log("connecting...");
+    _wsrpc.init = function (def) {
         var port,
             ws,
-            connection = {
-                id: "channel1"
-            },
-            api = [
-                {
-                    function: "userAgent",
-                    arguments: [],
-                    handler: userAgent
-                }
-            ],
-            handlers = {
-                userAgent: userAgent
-            };
+            _if, /* own representation of the interface */
+            i;
+        /* reshape api to avoid sending functions. */
+        _if = def;
+        _if.handlers = {};
+        for (i = 0; i < def.api.length; i++) {
+            if (!def.api[i].handler) {
+                throw new Error("No handler specified: " + JSON.stringify(def.api[i]));
+            }
+            _if.handlers[def.api[i].function] = def.api[i].handler;
+            delete _if.api[i].handler;
+        }
+        /* FIXME: ask the server for the connection information */
         port = window.location.search.substring(1);
         try {
             port = parseInt(port, 10);
         } catch (e) {
             console.error("Cannot parse port: " + port);
         }
-        ws = new WebSocket("ws://localhost:" + port + "/hey");
-        console.log("connected!");
+        ws = new WebSocket("ws://localhost:" + port + "/wsrpc");
         
         function publishAPI() {
             var payload = {
                 type: "publish",
-                id: connection.id,
-                us: connection.us,
-                them: connection.them,
-                api: api
+                id: _if.connection.id,
+                us: _if.connection.us,
+                them: _if.connection.them,
+                api: _if.api
             };
                 
             ws.send(JSON.stringify(payload));
@@ -71,9 +66,9 @@
                     }
                     call = {
                         type: "call",
-                        id: connection.id,
-                        us: connection.us,
-                        them: connection.them,
+                        id: _if.connection.id,
+                        us: _if.connection.us,
+                        them: _if.connection.them,
                         fn: api.function,
                         arguments: Array.prototype.slice.call(arguments),
                         trace: _getRandomID()
@@ -84,20 +79,20 @@
             }
             
             for (i = 0; i < payload.api.length; i++) {
-                console.log("Creating function: " + api[i].function);
-                window.peer[api[i].function] = makeFunction(api[i]);
+                console.log("Creating function: " + _if.api[i].function);
+                window.peer[_if.api[i].function] = makeFunction(_if.api[i]);
             }
             
             window.peer.ready = true;
         }
         
         function handleCall(payload) {
-            var result = handlers[payload.fn].apply(null, payload.arguments),
+            var result = _if.handlers[payload.fn].apply(null, payload.arguments),
                 rpayload = {
                     type: "return",
-                    id: connection.id,
-                    us: connection.us,
-                    them: connection.them,
+                    id: _if.connection.id,
+                    us: _if.connection.us,
+                    them: _if.connection.them,
                     trace: payload.trace,
                     result: result
                 };
@@ -112,7 +107,7 @@
         ws.onopen = function () {
             var payload = {
                 type: "handshake",
-                id: connection.id
+                id: _if.connection.id
             };
             ws.send(JSON.stringify(payload));
         };
@@ -129,12 +124,13 @@
             
             if (!payload.type) {
                 console.error("Payload has not type " + e.data);
+                return;
             }
             
             switch (payload.type) {
             case "handshake":
-                connection.us = payload.us;
-                connection.them = payload.them;
+                _if.connection.us = payload.us;
+                _if.connection.them = payload.them;
                 publishAPI();
                 break;
             case "publish":
@@ -152,14 +148,8 @@
                 return;
             }
         };
-        var button = document.getElementById("call");
-        button.onclick = function () {
-            if (peer.ready) {
-                peer.userAgent(function (result) {
-                    var pre = document.getElementById("result");
-                    pre.innerHTML = result;
-                });
-            }
-        };
-    });
+    };
+
+    window.wsrpc = _wsrpc;
+
 }());

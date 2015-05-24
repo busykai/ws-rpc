@@ -7,6 +7,7 @@
         Deferred = require("../util/deferred");
     
     var data = fs.readFileSync("client/index.html"),
+        wsrpcc = fs.readFileSync("../client/wsrpcc.js"),
         script = fs.readFileSync("client/main.js");
     
     var _server = http.createServer();
@@ -26,6 +27,9 @@
                     return;
                 case "/client/main.js":
                     res.end(script);
+                    return;
+                case "/wsrpcc.js":
+                    res.end(wsrpcc);
                     return;
                 default:
                     res.statusCode = 404;

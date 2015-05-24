@@ -10,7 +10,6 @@
      */
     var http = require("http"),
         WebSocketServer = require("ws").Server,
-        Deferred = require("../util/deferred"),
         protocol = require("./protocol");
 
     var _wss,
@@ -19,15 +18,14 @@
     function clean() {
     }
 
-    function start() {
-        var deferred = new Deferred();
+    function start(callback) {
         _server = http.createServer();
         _server.listen(0, function () {
             _wss = new WebSocketServer({server: _server});
             _wss.on('connection', protocol.handleConnection);
-            deferred.done();
+            callback();
         });
-        return deferred;
+        return;
     }
     
     function getPort() {
