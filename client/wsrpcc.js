@@ -15,6 +15,10 @@
         return result;
     }
     
+    function _emptyHanlder() {
+        return;
+    }
+    
     var _wsrpc = {},
         _calls = {};
 
@@ -59,8 +63,15 @@
             
             function makeFunction(api) {
                 return function () {
-                    var call;
-                    if (arguments.length !== api.arguments.length + 1) {
+                    var call,
+                        handleReturn = false,
+                        transmitArguments = Array.prototype.slice.call(arguments);
+                    if (arguments.length > 0 && typeof arguments[arguments.length - 1] === "function") {
+                        handleReturn = true;
+                        transmitArguments.pop();
+                    }
+                    if ((handleReturn && arguments.length !== api.arguments.length + 1) ||
+                            (!handleReturn && arguments.length !== api.arguments.length)) {
                         console.error("Wrong number of arguments!");
                         return;
                     }
@@ -70,10 +81,10 @@
                         us: _if.connection.us,
                         them: _if.connection.them,
                         fn: api.function,
-                        arguments: Array.prototype.slice.call(arguments),
+                        arguments: transmitArguments,
                         trace: _getRandomID()
                     };
-                    _calls[call.trace] = arguments[arguments.length - 1];
+                    _calls[call.trace] = handleReturn ? arguments[arguments.length - 1] : _emptyHanlder;
                     ws.send(JSON.stringify(call));
                 };
             }

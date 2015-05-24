@@ -6,6 +6,10 @@
         return navigator.userAgent;
     }
     
+    function setContent(val) {
+        document.getElementById("input").value = val;
+    }
+    
     function getPeerInterface() {
         return {
             connection: {
@@ -16,21 +20,38 @@
                     function: "userAgent",
                     arguments: [],
                     handler: userAgent
+                },
+                {
+                    function: "setContent",
+                    arguments: [{ description: "input text value" }],
+                    handler: setContent
                 }
             ]
         };
     }
 
     window.addEventListener("load", function () {
-        var button = document.getElementById("call");
+        // initialize WS-RPC with the published interface
         wsrpc.init(getPeerInterface());
-        button.onclick = function () {
+
+        var uaButton = document.getElementById("call"),
+            input = document.getElementById("input"),
+            getContentButton = document.getElementById("getcontent");
+        
+        uaButton.addEventListener("click", function () {
             if (peer.ready) {
                 peer.userAgent(function (result) {
                     var pre = document.getElementById("result");
                     pre.innerHTML = result;
                 });
             }
-        };
+        });
+        
+        getContentButton.addEventListener("click", function () {
+            if (peer.ready) {
+                peer.setContent(input.value);
+            }
+        });
+        
     });
 }());
