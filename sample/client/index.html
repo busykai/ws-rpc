@@ -7,13 +7,20 @@
   <body>
     <pre id="status" style="background-color: #66b588;"></pre>
     <hr />
+    <h3>Function return value</h3>
     <p>Press the button to retrieve the agent string of the peer. It will call <code>userAgent()</code> defined in the other browser</p>
     <button id="call">Peer User Agent</button>
     <pre id="result"></pre>
     <hr />
-    <p>Type a phrase in the input field. Switch to the other browser and press get the content</p>
+    <h3>Passing argument to function</h3>
+    <p>Type a phrase in the input field and press set content. Switch to the other browser and press get the content</p>
     <input id="input"></input>
     <button id="getcontent">Set value in peer</button>
     <pre id="content"></pre>
+    <hr />
+    <h3>Emitting and receiving event</h3>
+    <p>Events from the peer can be generated and recieved. Click on button to generate "haha" event.<p>
+    <button id="haha">Generate event</button>
+    <pre id="event"></pre>
   </body>
 </html>

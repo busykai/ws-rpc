@@ -140,9 +140,8 @@
                 case "publish":
                 case "call":
                 case "return":
-                    tunnel.handle(payload);
-                    break;
                 case "event":
+                    tunnel.handle(payload);
                     break;
                 default:
                     throw new ProtocolError("Message type " + payload.type + " is not understood");

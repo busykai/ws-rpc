@@ -29,13 +29,16 @@
             ]
         };
     }
+    
+    var eventCount = 0;
 
     window.addEventListener("load", function () {
 
         var uaButton = document.getElementById("call"),
             input = document.getElementById("input"),
             getContentButton = document.getElementById("getcontent"),
-            status = document.getElementById("status");
+            status = document.getElementById("status"),
+            generateEvent = document.getElementById("haha");
         
         uaButton.addEventListener("click", function () {
             if (peer.ready) {
@@ -50,6 +53,17 @@
             if (peer.ready) {
                 peer.setContent(input.value);
             }
+        });
+        
+        generateEvent.addEventListener("click", function () {
+            if (peer.ready) {
+                peer.dispatch("haha");
+            }
+        });
+        
+        peer.on("haha", function () {
+            var pre = document.getElementById("event");
+            pre.innerHTML += "Event " + (eventCount++) + ": 'haha'\n";
         });
         
         wsrpc.on("open", function () {

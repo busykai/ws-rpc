@@ -16,14 +16,33 @@
         return result;
     }
     
-    /** EVENTS **/
+    /** PEER EVENTS (from and to the remote peer) **/
+    
+    var _peerEventHandlers = {
+    };
+    
+    window.peer.on = function (event, callback) {
+        if (!_peerEventHandlers[event]) {
+            _peerEventHandlers[event] = [callback];
+        } else {
+            _peerEventHandlers[event].push(callback);
+        }
+    };
+    
+    
+    // this impl will be replaced on init
+    window.peer.dispatch = function (event, args) {
+        return;
+    };
+    
+    /** LIFECYCLE EVENTS (observe how this module does) **/
     
     var _E_OPEN     = "open",
         _E_CLOSE    = "close",
         _E_ERROR    = "error",
         _E_PEER     = "peer";
     
-    var _events = {
+    var _eventHandlers = {
     };
     
     function checkValidEvent(event) {
@@ -42,10 +61,10 @@
         if (!checkValidEvent(event)) {
             return;
         }
-        if (!_events[event]) {
-            _events[event] = [callback];
+        if (!_eventHandlers[event]) {
+            _eventHandlers[event] = [callback];
         } else {
-            _events[event].push(callback);
+            _eventHandlers[event].push(callback);
         }
     };
     
@@ -53,7 +72,7 @@
         if (!checkValidEvent(event)) {
             return;
         }
-        var handlers = _events[event],
+        var handlers = _eventHandlers[event],
             i;
         
         if (!handlers) {
@@ -106,6 +125,19 @@
                 api: _if.api
             };
                 
+            ws.send(JSON.stringify(payload));
+        }
+        
+        function emitEvent(event, args) {
+            var payload = {
+                type: "event",
+                id: _if.connection.id,
+                us: _if.connection.us,
+                them: _if.connection.them,
+                name: event,
+                arguments: args
+            };
+            
             ws.send(JSON.stringify(payload));
         }
         
@@ -165,6 +197,19 @@
             callback(payload.result);
         }
         
+        function handleEvent(payload) {
+            var handlers = _peerEventHandlers[payload.name],
+                i;
+            
+            if (!handlers) {
+                return;
+            }
+            
+            for (i = 0; i < handlers.length; i++) {
+                handlers[i].apply(window.peer, [payload.arguments]);
+            }
+        }
+        
         ws.onopen = function () {
             _dispatch(_E_OPEN, []);
             var payload = {
@@ -195,6 +240,7 @@
                 _if.connection.them = payload.them;
                 _dispatch(_E_PEER, [_if.connection.them]);
                 publishAPI();
+                window.peer.dispatch = emitEvent;
                 break;
             case "publish":
                 handlePublish(payload);
@@ -204,6 +250,9 @@
                 break;
             case "return":
                 handleReturn(payload);
+                break;
+            case "event":
+                handleEvent(payload);
                 break;
             default:
                 console.error("Payload type is not understood: " + payload.type);
