@@ -49,6 +49,12 @@
             }
         });
         
+        var port = window.location.search.substring(1);
+        try {
+            port = parseInt(port, 10);
+        } catch (e) {
+            console.error("Cannot parse port: " + port);
+        }
         getContentButton.addEventListener("click", function () {
             if (peer.ready) {
                 peer.setContent(input.value);
@@ -82,7 +88,7 @@
         });
         
         // initialize WS-RPC with the published interface
-        wsrpc.init(getPeerInterface());
+        wsrpc.init(port, getPeerInterface());
 
     });
 }());

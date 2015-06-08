@@ -91,9 +91,8 @@
     
     var _calls = {};
 
-    _wsrpc.init = function (def) {
-        var port,
-            ws,
+    _wsrpc.init = function (port, def) {
+        var ws,
             _if, /* own representation of the interface */
             i;
         /* reshape api to avoid sending functions. */
@@ -106,13 +105,6 @@
             }
             _if.handlers[def.api[i].function] = def.api[i].handler;
             delete _if.api[i].handler;
-        }
-        /* FIXME: ask the server for the connection information */
-        port = window.location.search.substring(1);
-        try {
-            port = parseInt(port, 10);
-        } catch (e) {
-            console.error("Cannot parse port: " + port);
         }
         ws = new WebSocket("ws://localhost:" + port + "/wsrpc");
         
