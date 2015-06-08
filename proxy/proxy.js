@@ -1,7 +1,7 @@
 /*
  * Copyright 2015 Intel Corporation. All rights reserved.
  */
-/*global require: false, console: false, module: true */
+/*global require: false, module: true */
 (function () {
     "use strict";
     
@@ -15,9 +15,6 @@
     var _wss,
         _server;
     
-    function clean() {
-    }
-
     function start(callback) {
         _server = http.createServer();
         _server.listen(0, function () {
