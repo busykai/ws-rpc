@@ -1,7 +1,7 @@
 /*global require: false, console: false */
 (function () {
     "use strict";
-    var proxy = require("../proxy/proxy"),
+    var wsRPCServer = require("../server/server"),
         server = require("./server/server"),
         cprocess = require('child_process'),
         open = require("open");
@@ -9,9 +9,9 @@
     var port = -1;
 
     console.log("Staring proxy.");
-    proxy.start(function () {
+    wsRPCServer.start(function () {
         server.start().then(function () {
-            port = proxy.getPort();
+            port = wsRPCServer.getPort();
             console.log("Started server on " + port);
             if (port > 0) {
                 open("http://localhost:8080/client/index.html?" + port);
