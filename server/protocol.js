@@ -7,6 +7,8 @@
     var _tunnels = {};
     
     var _sockets = {};
+
+    var _s2t = {};
     
     function _serialize(payload) {
         return JSON.stringify(payload);
@@ -80,6 +82,10 @@
             console.log("Tunnel connected: " + us + " <-> " + them);
         }
     };
+
+    Tunnel.prototype.removePeer = function removePeer(wsID) {
+        delete this.peers[wsID];
+    }
     
     Tunnel.prototype.handle = function (payload) {
         var caller = payload.us,
@@ -109,12 +115,20 @@
         }
         
         tunnel.setPeer(wsID);
-        
+        _s2t[wsID] = tunnelID;
     }
 
     function handleConnection(ws) {
         var wsID = _getRandomID();
         _sockets[wsID] = ws;
+        ws.on("close", function _processClose() {
+            var tunnelID = _s2t[wsID];
+            if (tunnelID) {
+                _tunnels[tunnelID].removePeer(wsID);
+            }
+            delete _sockets[wsID];
+            delete _s2t[wsID];
+        });
         ws.on("message", function _processMessage(msg) {
             var payload,
                 tunnelID,
@@ -149,7 +163,6 @@
             }
         });
     }
-    
 
     module.exports = {
         handleConnection: handleConnection
