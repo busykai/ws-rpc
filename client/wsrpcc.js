@@ -41,7 +41,8 @@
     var _E_OPEN     = "open",
         _E_CLOSE    = "close",
         _E_ERROR    = "error",
-        _E_PEER     = "peer";
+        _E_PEER     = "peer",
+        _E_PUBLISH  = "publish";
     
     var _eventHandlers = {
     };
@@ -181,6 +182,8 @@
                 console.log("Creating function: " + payload.api[i].function);
                 window.peer[payload.api[i].function] = makeFunction(payload.api[i]);
             }
+
+            _dispatch(_E_PUBLISH, []);
             
             window.peer.ready = true;
         }
