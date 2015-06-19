@@ -53,6 +53,7 @@
         case _E_ERROR:
         case _E_OPEN:
         case _E_PEER:
+        case _E_PUBLISH:
             return true;
         default:
             return false;
