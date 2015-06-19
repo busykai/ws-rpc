@@ -12,9 +12,6 @@
     
     function getPeerInterface() {
         return {
-            connection: {
-                id: "channel1"
-            },
             api: [
                 {
                     function: "userAgent",
@@ -77,6 +74,7 @@
         });
         wsrpc.on("peer", function (id) {
             status.innerHTML += "Peer connected (id " + id + ").\n";
+            wsrpc.publishAPI(getPeerInterface());
         });
         wsrpc.on("close", function (id) {
             status.style.backgroundColor = "#c95656";
@@ -88,7 +86,7 @@
         });
         
         // initialize WS-RPC with the published interface
-        wsrpc.init(port, getPeerInterface());
+        wsrpc.init(port, "channel1");
 
     });
 }());

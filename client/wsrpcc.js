@@ -4,7 +4,8 @@
 
     window.peer = {};
     var _wsrpc = {};
-        
+    var ws;
+    var _conn = {};
     var _LETTERS_AND_NUMBERS = "abcdefghijklmnopqrstuvwxyz0123456789";
 
     function _getRandomID() {
@@ -90,42 +91,55 @@
     }
     
     var _calls = {};
-
-    _wsrpc.init = function (port, def) {
-        var ws,
-            _if, /* own representation of the interface */
+    
+    _wsrpc.publishAPI = function (def) {
+        var _if, /* own representation of the interface */
             i;
         /* reshape api to avoid sending functions. */
         _if = def;
-        _if.handlers = {};
+        if (!_conn.handlers) {
+            _conn.handlers = {};
+        }
         for (i = 0; i < def.api.length; i++) {
             if (!def.api[i].handler) {
                 _dispatch(_E_ERROR, ["No handler specified: " + JSON.stringify(def.api[i])]);
                 return;
             }
-            _if.handlers[def.api[i].function] = def.api[i].handler;
+            _conn.handlers[def.api[i].function] = def.api[i].handler;
             delete _if.api[i].handler;
         }
-        ws = new WebSocket("ws://localhost:" + port + "/wsrpc");
-        
-        function publishAPI() {
+
+        function pushAPI() {
             var payload = {
                 type: "publish",
-                id: _if.connection.id,
-                us: _if.connection.us,
-                them: _if.connection.them,
+                id: _conn.connection.id,
+                us: _conn.connection.us,
+                them: _conn.connection.them,
                 api: _if.api
             };
                 
             ws.send(JSON.stringify(payload));
         }
         
+        pushAPI();
+
+    };
+
+    _wsrpc.init = function (port, id) {
+        
+        if (id) {
+            _conn.connection = {};
+            _conn.connection.id = id;
+        }
+        
+        ws = new WebSocket("ws://localhost:" + port + "/wsrpc");
+        
         function emitEvent(event, args) {
             var payload = {
                 type: "event",
-                id: _if.connection.id,
-                us: _if.connection.us,
-                them: _if.connection.them,
+                id: _conn.connection.id,
+                us: _conn.connection.us,
+                them: _conn.connection.them,
                 name: event,
                 arguments: args
             };
@@ -151,9 +165,9 @@
                     }
                     call = {
                         type: "call",
-                        id: _if.connection.id,
-                        us: _if.connection.us,
-                        them: _if.connection.them,
+                        id: _conn.connection.id,
+                        us: _conn.connection.us,
+                        them: _conn.connection.them,
                         fn: api.function,
                         arguments: transmitArguments,
                         trace: _getRandomID()
@@ -164,20 +178,20 @@
             }
             
             for (i = 0; i < payload.api.length; i++) {
-                console.log("Creating function: " + _if.api[i].function);
-                window.peer[_if.api[i].function] = makeFunction(_if.api[i]);
+                console.log("Creating function: " + payload.api[i].function);
+                window.peer[payload.api[i].function] = makeFunction(payload.api[i]);
             }
             
             window.peer.ready = true;
         }
         
         function handleCall(payload) {
-            var result = _if.handlers[payload.fn].apply(null, payload.arguments),
+            var result = _conn.handlers[payload.fn].apply(null, payload.arguments),
                 rpayload = {
                     type: "return",
-                    id: _if.connection.id,
-                    us: _if.connection.us,
-                    them: _if.connection.them,
+                    id: _conn.connection.id,
+                    us: _conn.connection.us,
+                    them: _conn.connection.them,
                     trace: payload.trace,
                     result: result
                 };
@@ -206,7 +220,7 @@
             _dispatch(_E_OPEN, []);
             var payload = {
                 type: "handshake",
-                id: _if.connection.id
+                id: _conn.connection.id
             };
             ws.send(JSON.stringify(payload));
         };
@@ -228,10 +242,9 @@
             
             switch (payload.type) {
             case "handshake":
-                _if.connection.us = payload.us;
-                _if.connection.them = payload.them;
-                _dispatch(_E_PEER, [_if.connection.them]);
-                publishAPI();
+                _conn.connection.us = payload.us;
+                _conn.connection.them = payload.them;
+                _dispatch(_E_PEER, [_conn.connection.them]);
                 window.peer.dispatch = emitEvent;
                 break;
             case "publish":
