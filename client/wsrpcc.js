@@ -216,7 +216,7 @@
             }
             
             for (i = 0; i < handlers.length; i++) {
-                handlers[i].apply(window.peer, [payload.arguments]);
+                handlers[i].apply(window.peer, payload.arguments);
             }
         }
         
