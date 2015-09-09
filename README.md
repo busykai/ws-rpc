@@ -1,5 +1,5 @@
 # ws-rpc
-WebSocket-based browser-to-browser RPC (with help of node.js)
+WebSocket-based browser-to-browser RPC (with help of a node.js process)
 
 ## Purpose
 This prototype provides a mechanism for two browser instances to publish and
@@ -37,7 +37,7 @@ The prototype consists of three components:
 
    In this repository (`sample/server/server.js`), the server is not used as
    broker. Instead, it simply serves the client pages. The WS server port is
-   passed query sting to the page (see `sample/sample.js` in the root).
+   passed query sting to the page (see `sample/sample.js`).
 
 
 Below diagram illustrates the relationship between the components:
