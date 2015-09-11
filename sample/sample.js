@@ -6,7 +6,7 @@
 /*global require: false, console: false */
 (function () {
     "use strict";
-    var wsRPCServer = require("../server/server"),
+    var wsRPCServer = require("../server/wsrpcs"),
         server = require("./server/server"),
         cprocess = require('child_process'),
         open = require("open");
