@@ -93,7 +93,7 @@
     }
 
     /* AUX FUNCTIONS */
-    function _emptyHanlder() {
+    function _emptyHandler() {
         return;
     }
     
@@ -179,7 +179,7 @@
                         arguments: transmitArguments,
                         trace: _getRandomID()
                     };
-                    _calls[call.trace] = handleReturn ? arguments[arguments.length - 1] : _emptyHanlder;
+                    _calls[call.trace] = handleReturn ? arguments[arguments.length - 1] : _emptyHandler;
                     ws.send(JSON.stringify(call));
                 };
             }
