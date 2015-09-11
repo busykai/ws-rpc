@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 Intel Corporation. All rights reserved.
+ *
+ * See LICENSE for full license text.
+ */
 /*global require: false, module: false, console: false */
 (function () {
     "use strict";

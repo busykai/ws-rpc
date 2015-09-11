@@ -1,3 +1,8 @@
+<!--
+Copyright (c) 2015 Intel Corporation. All rights reserved.
+
+See LICENSE for full license text.
+-->
 # ws-rpc
 WebSocket-based browser-to-browser RPC (with help of a node.js process)
 
