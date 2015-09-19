@@ -169,7 +169,7 @@
 
         for (i = 0; i < payload.api.length; i++) {
             console.log("Creating function: " + payload.api[i].function);
-            this.peer[payload.api[i].function] = makeFunction(payload.api[i]);
+            this[payload.api[i].function] = makeFunction(payload.api[i]);
         }
 
         this._dispatch(_E_PUBLISH, []);
@@ -195,6 +195,9 @@
     Peer.prototype._handleReturn = function (payload) {
         var callback = _calls[payload.trace];
         callback(payload.result);
+    };
+
+    Peer.prototype._handleEvent = function (payload) {
     };
 
 
@@ -237,19 +240,19 @@
                 case "handshake":
                     p.us = payload.us;
                     p.them = payload.them;
-                    p._dispatch(_E_PEER, [p.them]);
+                    p._dispatch(_E_CONNECT, [p.them]);
                     break;
                 case "publish":
-                    p.handlePublish(payload);
+                    p._handlePublish(payload);
                     break;
                 case "call":
-                    p.handleCall(payload);
+                    p._handleCall(payload);
                     break;
                 case "return":
-                    p.handleReturn(payload);
+                    p._handleReturn(payload);
                     break;
                 case "event":
-                    p.handleEvent(payload);
+                    p._handleEvent(payload);
                     break;
                 default:
                     console.error("Payload type is not understood: " + payload.type);
@@ -268,6 +271,8 @@
         ws.onclose = function (e) {
             _dispatch(_E_CLOSE, []);
         };
+
+        return peer;
     };
 
     window.wsrpc = _wsrpc;
