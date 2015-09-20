@@ -90,12 +90,23 @@
     }
 
     Peer.prototype.on = function (e, callback) {
-        if (!this._eventHandlers[event]) {
-            this._eventHandlers[event] = [callback];
+        if (!this._eventHandlers[e]) {
+            this._eventHandlers[e] = [callback];
         } else {
-            this._eventHandlers[event].push(callback);
+            this._eventHandlers[e].push(callback);
         }
     };
+
+    Peer.prototype._dispatchLocal = function (e, args) {
+        var handlers = this._eventHandlers[e],
+            i;
+        if (!handlers) {
+            return;
+        }
+        for (i = 0; i < handlers.length; i++) {
+            handlers[i].apply(this, args);
+        }
+    }
 
     Peer.prototype._dispatch = function (e, args) {
         var payload = {
@@ -137,7 +148,7 @@
     };
 
     Peer.prototype._handlePublish = function (payload) {
-        var self,
+        var self = this,
             i;
 
         function makeFunction(api) {
@@ -172,15 +183,12 @@
             this[payload.api[i].function] = makeFunction(payload.api[i]);
         }
 
-        this._dispatch(_E_PUBLISH, []);
-
-        // FIXME: should not have "ready"...
-        this.peer.ready = true;
+        this._dispatchLocal(_E_PUBLISH, []);
     };
 
     // FIXME: does not handle async handlers
     Peer.prototype._handleCall = function (payload) {
-        var result = _conn.handlers[payload.fn].apply(null, payload.arguments),
+        var result = this._apiHandlers[payload.fn].apply(null, payload.arguments),
             rpayload = {
                 type: "return",
                 id: this.channel,
@@ -240,7 +248,7 @@
                 case "handshake":
                     p.us = payload.us;
                     p.them = payload.them;
-                    p._dispatch(_E_CONNECT, [p.them]);
+                    p._dispatchLocal(_E_CONNECT, [p.them]);
                     break;
                 case "publish":
                     p._handlePublish(payload);
