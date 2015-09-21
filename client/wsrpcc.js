@@ -106,9 +106,9 @@
         for (i = 0; i < handlers.length; i++) {
             handlers[i].apply(this, args);
         }
-    }
+    };
 
-    Peer.prototype._dispatch = function (e, args) {
+    Peer.prototype.dispatch = function (e, args) {
         var payload = {
             type: "event",
             id: this.channel,
@@ -206,6 +206,16 @@
     };
 
     Peer.prototype._handleEvent = function (payload) {
+        var handlers = this._eventHandlers[payload.name],
+            i;
+
+        if (!handlers) {
+            return;
+        }
+        
+        for (i = 0; i < handlers.length; i++) {
+            handlers[i].apply(this, payload.arguments);
+        }
     };
 
 
